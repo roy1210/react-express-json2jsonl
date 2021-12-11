@@ -2,10 +2,14 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 const fs = require('fs');
 const jsonl = require('jsonl');
+const path = require('path');
 
 const app = express();
 
 app.use(fileUpload());
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/build')));
 
 app.post('/upload', (req, res) => {
   if (req.files === null) {
@@ -31,6 +35,12 @@ app.post('/upload', (req, res) => {
       console.log(e);
     }
   });
+});
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + '/client/build/index.html'));
 });
 
 const port = process.env.PORT || 5001;
